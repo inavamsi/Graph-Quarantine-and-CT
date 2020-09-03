@@ -1,7 +1,6 @@
 
-To run model
+To run model : python graph_CT.py
 
-python graph_CT.py
 
 
 Modifications
