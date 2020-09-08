@@ -24,30 +24,36 @@ class Simulate():
 
 		self.update()
 
-	def simulate_day(self,q_degree):
+	def simulate_day(self,q_degree,error_CT):
 		#print(self.state_history['Exposed'])
-		self.quarantine(q_degree)
+		self.quarantine(q_degree,error_CT)
 		self.spread()
 		self.update()
 
-	def simulate_days(self,days,q_degree):
+	def simulate_days(self,days,q_degree,error_CT):
 		for i in range(days):
-			self.simulate_day(q_degree)
+			self.simulate_day(q_degree,error_CT)
 
-	def quarantine(self,q_degree):
+	def quarantine(self,q_degree,error_CT):
 		self.quarantine_list=[]
 		for agent in self.agents:
 			agent.quarantined=False
+			agent.done_CT=False
 
 		if q_degree<=0:
 			return 
 
-		self.quarantine_list = self.state_list['Symptomatic']
+		self.quarantine_list = copy.deepcopy(self.state_list['Symptomatic'])
 
 		for i in range(q_degree-1):
-			temp_qlist=self.quarantine_list
+			temp_qlist=copy.deepcopy(self.quarantine_list)
 			for indx in self.quarantine_list:
-				temp_qlist=list(set(temp_qlist+self.graph_obj.adj_list[indx]))
+				if self.agents[indx].done_CT:
+					continue 
+				for contact_indx in self.graph_obj.adj_list[indx]:
+					if random.random()>error_CT:
+						temp_qlist.append(contact_indx)
+				self.agents[indx].done_CT=True
 			self.quarantine_list=list(set(temp_qlist))
 
 		for indx in self.quarantine_list:

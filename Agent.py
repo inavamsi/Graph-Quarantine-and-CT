@@ -10,3 +10,4 @@ class Agent():
 		self.index=index
 		self.neighbours=[]
 		self.quarantined=False
+		self.done_CT=False
