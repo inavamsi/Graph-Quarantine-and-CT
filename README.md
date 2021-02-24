@@ -1,13 +1,9 @@
+# Efficacy of Contact Tracing
+Finding the optimal sweet spot for contact tracing in a region.
 
-To run model : python graph_CT.py
+## Run
+To run locally
 
-
-
-Modifications
-
--Define Graph in Graph.py
-
--in graph_CT.py -> worlds(<number of simulations to average on>,<degree of quarantine>) for an SIR plot
-  
--in graph_CT.py -> histogram() for comparing plot at different degrees of quarantine
+    cd Graph-Quarantine-and-CT
+    streamlit run main.py
 

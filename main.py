@@ -83,7 +83,7 @@ def histogram():
 	if p_range:
 		p/=10
 	days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=30 , step=1 , format=None , key=None )
-	num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=1 , step=1 , format=None , key=None )
+	num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=3 , step=1 , format=None , key=None )
 	st.sidebar.write("Averaging simulation "+str(num_worlds)+" times over graph G("+str(n)+","+str(p)+") for "+str(days)+" days.")
 	
 	st.sidebar.write("--------------")
@@ -153,3 +153,6 @@ st.write("----------------------------------------------------------------------
 
 #Histogram of cumulative hours(yaxis) vs qdegree(x axis)
 histogram()
+st.write("------------------------------------------------------------------------------------")
+
+st.write("Site under construction...")
