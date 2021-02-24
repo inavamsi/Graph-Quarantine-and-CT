@@ -108,16 +108,17 @@ def worlds(number,qdegree):
 
 def histogram(n,p):
 	num_exp=0.01
-	days=300
+	days=100
 	error_CT=0.1
 	qdegree_list=[0,1,2,3]
+	worlds=3
 	individual_types=['Susceptible','Exposed','Asymptomatic','Symptomatic','Recovered']
 	hdict={}
 	for s in individual_types:
 		hdict[s]=[0]*len(qdegree_list)
 	hdict['Quarantined']=[0]*len(qdegree_list)
 	for qdegree in qdegree_list:
-		for i in range(200):
+		for i in range(worlds):
 			graph_obj = Graph.RandomGraph(n,p,True)
 			sdict,qlist = main(n,p,num_exp,days,qdegree,graph_obj,error_CT)
 			for state in sdict.keys():
