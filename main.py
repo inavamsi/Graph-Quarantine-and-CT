@@ -162,7 +162,7 @@ def histogram():
 
 	a=st.slider("Cost per unit time of Symptomatic infection",value=13)
 	b=st.slider("Cost per unit time of Asymptomatic infection",value=5)
-	c=st.slider("Cost per unit time of Quarantine",value=2)
+	c=st.slider("Cost per unit time of Quarantine",value=1)
 
 	st.write("For better results please change(on the left) the number of times to average the simulation over.")
 	cost_list=[]
