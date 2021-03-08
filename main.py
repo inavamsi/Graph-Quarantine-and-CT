@@ -8,12 +8,12 @@ import Agent
 import Graph
 import Simulate
 
-def main(n,p,exp_per,days,qdegree,graph_obj,error_CT,disease_paramters):
+def main(exp_per,days,qdegree,graph_obj,error_CT,disease_paramters):
 	
 	beta_sy,beta_asy,mu_sy,mu_asy,gamma_sy,gamma_asy,delta=disease_paramters
 
 	agents=[]
-	for i in range(n):
+	for i in range(graph_obj.size):
 		state='Susceptible'
 		if random.random()<exp_per:
 			state='Exposed'
@@ -84,13 +84,22 @@ def histogram():
 	st.write("------------------------------------------------------------------------------------")
 
 	st.sidebar.write("World parameters")
-	n=st.sidebar.slider("Number of agents", min_value=250 , max_value=3000 , value=1000 , step=250)
-	p=st.sidebar.slider("Probability(p) of an edge in G(n,p) random graph", min_value=0.0 , max_value=1.0 , value=0.26 , step=0.01 , format=None , key=None )
-	p_range=st.sidebar.checkbox("Divide p by 10",value=True)
-	if p_range:
-		p/=10
-	days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
-	num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=15 , step=1 , format=None , key=None )
+	graph_choice=st.sidebar.selectbox('Select Graph type', ['G(n,p) Random graph', 'Grid'])
+	if graph_choice=='G(n,p) Random graph':
+		n=st.sidebar.slider("Number of agents", min_value=250 , max_value=3000 , value=1000 , step=250)
+		p=st.sidebar.slider("Probability(p) of an edge in G(n,p) random graph", min_value=0.0 , max_value=1.0 , value=0.26 , step=0.01 , format=None , key=None )
+		p_range=st.sidebar.checkbox("Divide p by 10",value=True)
+		if p_range:
+			p/=10
+		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
+		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=3 , step=1 , format=None , key=None )
+	
+	elif graph_choice=='Grid':
+		n=st.sidebar.slider("Value of 'n' for nxn grid", min_value=5 , max_value=50 , value=30 , step=5)
+		p=-1
+		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
+		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=50 , step=1 , format=None , key=None )
+
 	st.sidebar.write("Averaging simulation "+str(num_worlds)+" times over graph G("+str(n)+","+str(p)+") for "+str(days)+" days.")
 	
 	st.sidebar.write("--------------")
@@ -107,8 +116,13 @@ def histogram():
 	num_exp=st.sidebar.slider("Starting exposed proportion", min_value=0.0 , max_value=1.0 , value=0.01 , step=0.01 , format=None , key=None )
 	beta_sy=st.sidebar.slider("Rate of infection due to Symptomatic : Susceptible->Exposed", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
 	beta_asy=st.sidebar.slider("Rate of infection due to Asymptomatic : Susceptible->Exposed", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
-	mu_sy=st.sidebar.slider("Rate of Exposed->Symptomatic", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
-	mu_asy=st.sidebar.slider("Rate of Exposed->Asymptomatic", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
+	
+	if p==-1:
+		mu_sy=st.sidebar.slider("Rate of Exposed->Symptomatic", min_value=0.0 , max_value=1.0 , value=0.1 , step=0.01 , format=None , key=None )
+		mu_asy=st.sidebar.slider("Rate of Exposed->Asymptomatic", min_value=0.0 , max_value=1.0 , value=0.25 , step=0.01 , format=None , key=None )
+	else:
+		mu_sy=st.sidebar.slider("Rate of Exposed->Symptomatic", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
+		mu_asy=st.sidebar.slider("Rate of Exposed->Asymptomatic", min_value=0.0 , max_value=1.0 , value=0.3 , step=0.01 , format=None , key=None )
 	gamma_sy=st.sidebar.slider("Rate of recovery : Symptomatic:->Recovered", min_value=0.0 , max_value=1.0 , value=0.1 , step=0.01 , format=None , key=None )
 	gamma_asy=st.sidebar.slider("Rate of recovery : Asymptomatic:->Recovered", min_value=0.0 , max_value=1.0 , value=0.1 , step=0.01 , format=None , key=None )
 	delta=st.sidebar.slider("Rate of unimmunisation : Recovered->Susceptible", min_value=0.0 , max_value=1.0 , value=0.0 , step=0.01 , format=None , key=None )
@@ -121,8 +135,11 @@ def histogram():
 	hdict['Quarantined']=[0]*len(qdegree_list)
 	for qdegree in qdegree_list:
 		for i in range(num_worlds):
-			graph_obj = Graph.RandomGraph(n,p,True)
-			sdict,qlist = main(n,p,num_exp,days,qdegree,graph_obj,error_CT,disease_paramters)
+			if p==-1:
+				graph_obj=Graph.Grid(n)
+			else:
+				graph_obj = Graph.RandomGraph(n,p,True)
+			sdict,qlist = main(num_exp,days,qdegree,graph_obj,error_CT,disease_paramters)
 			for state in sdict.keys():
 				for j in range(len(sdict[state])):
 					hdict[state][qdegree]+=sdict[state][j]
@@ -145,7 +162,10 @@ def histogram():
 	# Add some text for labels, title and custom x-axis tick labels, etc.
 	ax.set_ylabel('Cumulative Hours')
 	ax.set_xlabel('Quarantine degree')
-	ax.set_title('Costs of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+	if p==-1:
+		ax.set_title('Effects of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
+	else:
+		ax.set_title('Effects of different degrees of quarantine on G('+str(n)+','+str(p)+')')
 	ax.set_xticks(x)
 	ax.set_xticklabels(labels)
 	ax.legend()
@@ -176,7 +196,10 @@ def histogram():
 	# Add some text for labels, title and custom x-axis tick labels, etc.
 	ax2.set_ylabel('Cost')
 	ax2.set_xlabel('Quarantine degree')
-	ax2.set_title('Effects of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+	if p==-1:
+		ax2.set_title('Costs of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
+	else:
+		ax2.set_title('Costs of different degrees of quarantine on G('+str(n)+','+str(p)+')')
 	ax2.set_xticks(x)
 	ax2.set_xticklabels(labels)
 

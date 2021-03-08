@@ -9,6 +9,7 @@ class RandomGraph():
 	def __init__(self,n,p,connected=True):
 		self.n=n
 		self.p=p
+		self.size=n
 		self.connected=connected
 
 		self.adj_list=[]
@@ -41,6 +42,7 @@ class FamilyGraph():
 		#30% size 1 families and 70% size 4 => [0.3,0.3,0.3,1]
 		self.n=n
 		self.p=p
+		self.size=n
 		self.connected=connected
 
 		self.adj_list=[]
@@ -89,6 +91,27 @@ class FamilyGraph():
 			for j in range(i+1,len(family_list)):
 				self.adj_list[family_list[i]].append(family_list[j])
 				self.adj_list[family_list[j]].append(family_list[i])
+
+class Grid():
+	def __init__(self,n):
+		self.n=n
+		self.size=n*n
+
+		self.adj_list=[]
+		for i in range(n*n):
+			self.adj_list.append([])
+
+		for i in range(n):
+			for j in range(n-1):
+				v=i*n + j
+				self.adj_list[v].append(v+1)
+				self.adj_list[v+1].append(v)
+				if i !=n-1:
+					self.adj_list[v].append(v+n)
+					self.adj_list[v+n].append(v)
+
+		self.average_degree=4
+
 
 class StratifiedGraph():
 	def __init__(self,n,cum_proportion_list,probability_list,connected=True):
