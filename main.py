@@ -89,8 +89,15 @@ def histogram():
 	st.sidebar.write("World parameters")
 	seed=int(st.sidebar.text_input("Enter random seed value", value='42'))
 	random.seed(seed)
-	graph_choice=st.sidebar.selectbox('Select Graph type', ['G(n,p) Random graph', 'Grid'])
-	if graph_choice=='G(n,p) Random graph':
+	graph_choice=st.sidebar.selectbox('Select Graph type', ['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland'])
+	
+	if graph_choice=='Grid':
+		n=st.sidebar.slider("Value of 'n' for nxn grid", min_value=5 , max_value=50 , value=30 , step=5)
+		p=None
+		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
+		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=50 , step=1 , format=None , key=None )
+
+	else:
 		n=st.sidebar.slider("Number of agents", min_value=250 , max_value=3000 , value=500 , step=250)
 		p=st.sidebar.slider("Probability(p) of an edge in G(n,p) random graph", min_value=0.0 , max_value=1.0 , value=0.26 , step=0.01 , format=None , key=None )
 		p_range=st.sidebar.checkbox("Divide p by 10",value=True)
@@ -100,18 +107,13 @@ def histogram():
 		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=30 , step=1 , format=None , key=None )
 		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=1 , step=1 , format=None , key=None )
 	
-	elif graph_choice=='Grid':
-		n=st.sidebar.slider("Value of 'n' for nxn grid", min_value=5 , max_value=50 , value=30 , step=5)
-		p=-1
-		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
-		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=50 , step=1 , format=None , key=None )
 
 	st.sidebar.write("Averaging simulation "+str(num_worlds)+" times over graph G("+str(n)+","+str(p)+") for "+str(days)+" days.")
 	
 	st.sidebar.write("--------------")
 	st.sidebar.write("Contact Tracing parameters")
 	error_CT=st.sidebar.slider("Error proportion in identifying contacts", min_value=0.0 , max_value=1.0 , value=0.0 , step=0.01 , format=None , key=None )
-	max_degree=st.sidebar.slider("Degree range", min_value=0 , max_value=10 , value=4 , step=1 , format=None , key=None )
+	max_degree=st.sidebar.slider("Degree range", min_value=0 , max_value=10 , value=3 , step=1 , format=None , key=None )
 	qdegree_list=[]
 	for i in range(max_degree+1):
 		qdegree_list.append(i)
@@ -141,9 +143,13 @@ def histogram():
 	hdict['Quarantined']=[0]*len(qdegree_list)
 	for qdegree in qdegree_list:
 		for i in range(num_worlds):
-			if p==-1:
+			if graph_choice=='Grid':
 				graph_obj=Graph.Grid(n)
-			else:
+			elif graph_choice=='Country:Afghanistan':
+				graph_obj=Graph.FamilyGraph(n,p,[0,0.03,0.06,0.14,0.23,0.6,1],True)
+			elif graph_choice=='Country:Netherland':
+				graph_obj=Graph.FamilyGraph(n,p,[0.35,0.58,0.81,0.9,0.99,1],True)
+			elif graph_choice=='G(n,p) Random graph':
 				graph_obj = Graph.RandomGraph(n,p,True)
 			sdict,qlist = main(num_exp,days,qdegree,graph_obj,error_CT,disease_paramters)
 			for state in sdict.keys():
@@ -168,10 +174,15 @@ def histogram():
 	# Add some text for labels, title and custom x-axis tick labels, etc.
 	ax.set_ylabel('Cumulative Hours')
 	ax.set_xlabel('Quarantine degree')
-	if p==-1:
+	if graph_choice=='Grid':
 		ax.set_title('Effects of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
-	else:
+	elif graph_choice=='G(n,p) Random graph':
 		ax.set_title('Effects of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+	elif graph_choice=='Country:Afghanistan':
+		ax.set_title('Effects of different degrees of quarantine on \n Afghanistan with underlying G('+str(n)+','+str(p)+')')
+	elif graph_choice=='Country:Netherland':
+		ax.set_title('Effects of different degrees of quarantine on \n Netherland with underlying G('+str(n)+','+str(p)+')')
+	
 	ax.set_xticks(x)
 	ax.set_xticklabels(labels)
 	ax.legend()
@@ -202,10 +213,14 @@ def histogram():
 	# Add some text for labels, title and custom x-axis tick labels, etc.
 	ax2.set_ylabel('Cost')
 	ax2.set_xlabel('Quarantine degree')
-	if p==-1:
-		ax2.set_title('Costs of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
-	else:
-		ax2.set_title('Costs of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+	if graph_choice=='Grid':
+		ax.set_title('Cost of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
+	elif graph_choice=='G(n,p) Random graph':
+		ax.set_title('Cost of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+	elif graph_choice=='Country:Afghanistan':
+		ax.set_title('Cost of different degrees of quarantine on \n Afghanistan with underlying G('+str(n)+','+str(p)+')')
+	elif graph_choice=='Country:Netherland':
+		ax.set_title('Cost of different degrees of quarantine on \n Netherland with underlying G('+str(n)+','+str(p)+')')
 	ax2.set_xticks(x)
 	ax2.set_xticklabels(labels)
 
