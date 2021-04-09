@@ -1,12 +1,15 @@
 import random
 import copy
 import streamlit as st
+import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import numpy as np
 import Agent
 import Graph
 import Simulate
+
+
 
 def main(exp_per,days,qdegree,graph_obj,error_CT,disease_paramters):
 	
@@ -84,15 +87,18 @@ def histogram():
 	st.write("------------------------------------------------------------------------------------")
 
 	st.sidebar.write("World parameters")
+	seed=int(st.sidebar.text_input("Enter random seed value", value='42'))
+	random.seed(seed)
 	graph_choice=st.sidebar.selectbox('Select Graph type', ['G(n,p) Random graph', 'Grid'])
 	if graph_choice=='G(n,p) Random graph':
-		n=st.sidebar.slider("Number of agents", min_value=250 , max_value=3000 , value=1000 , step=250)
+		n=st.sidebar.slider("Number of agents", min_value=250 , max_value=3000 , value=500 , step=250)
 		p=st.sidebar.slider("Probability(p) of an edge in G(n,p) random graph", min_value=0.0 , max_value=1.0 , value=0.26 , step=0.01 , format=None , key=None )
 		p_range=st.sidebar.checkbox("Divide p by 10",value=True)
 		if p_range:
 			p/=10
-		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=100 , step=1 , format=None , key=None )
-		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=3 , step=1 , format=None , key=None )
+		p = float(int(p*1000))/1000
+		days=st.sidebar.slider("Number of days in simulation", min_value=1 , max_value=300 , value=30 , step=1 , format=None , key=None )
+		num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=1 , step=1 , format=None , key=None )
 	
 	elif graph_choice=='Grid':
 		n=st.sidebar.slider("Value of 'n' for nxn grid", min_value=5 , max_value=50 , value=30 , step=5)
@@ -207,8 +213,29 @@ def histogram():
 
 	st.pyplot(fig2)
 
+	st.write("------------------------------------------------------------------------------------")
 
-
+	st.header("Log")
+	st.write("Random Seed value: "+str(seed))
+	st.write("Graph type: "+graph_choice)
+	st.write("Number of agents: "+str(n))
+	st.write("Probability: "+str(p))
+	st.write("Number of days: "+str(days))
+	st.write("Number of worlds: "+str(num_worlds))
+	st.write("Error in tracing: "+str(error_CT))
+	st.write("Degree range: "+str(max_degree))
+	st.write("Starting exposed proportion: "+str(num_exp))
+	st.write("Rate of infection due to Symptomatic : Susceptible->Exposed: "+str(beta_sy))
+	st.write("Rate of infection due to Asymptomatic : Susceptible->Exposed: "+str(beta_asy))
+	st.write("Rate of Exposed->Symptomatic: "+str(mu_sy))
+	st.write("Rate of Exposed->Asymptomatic: "+str(mu_asy))
+	st.write("Rate of recovery : Symptomatic:->Recovered: "+str(gamma_sy))
+	st.write("Rate of recovery : Asymptomatic:->Recovered: "+str(gamma_asy))
+	st.write("Rate of unimmunisation : Recovered->Susceptible: "+str(delta))
+	st.write("Cost per unit time of Symptomatic infection: "+str(a))
+	st.write("Cost per unit time of Asymptomatic infection: "+str(b))
+	st.write("Cost per unit time of Quarantine: "+str(c))
+	
 #Histogram of cumulative hours(yaxis) vs qdegree(x axis)
 histogram()
 
