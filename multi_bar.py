@@ -1,9 +1,10 @@
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 
-pgf=False
-name='multibar_1b'
-
+pgf=True
+name='multibar_4b'
+title='Comparing costs on G(2000,0.02) graph \n with trace delay of 2 days'
 if pgf:
     matplotlib.use("pgf")
     matplotlib.rcParams.update({
@@ -13,8 +14,7 @@ if pgf:
         'pgf.rcfonts': False,
     })
 
-hdict={'Susceptible': [17866.5, 30038.1, 127996.4, 186337.8, 187992.0], 'Exposed': [7476.8, 7239.8, 4103.9, 612.6, 536.5], 'Asymptomatic': [4764.4, 4719.0, 2549.5, 444.6, 363.8], 'Symptomatic': [17724.3, 17100.9, 9517.6, 1528.2, 1332.6], 'Recovered': [154168.0, 142902.2, 57832.6, 13076.8, 11775.1], 'Quarantined': [0.0, 19825.2, 70386.3, 49247.1, 57212.6]}
-print(hdict)
+hdict={'Susceptible': [12649.3, 16129.6, 85793.1, 104682.2, 107806.3], 'Exposed': [7487.0, 7429.3, 5553.3, 4434.3, 4274.9], 'Asymptomatic': [4739.7, 4834.7, 3513.0, 2821.6, 2714.9], 'Symptomatic': [17701.3, 17516.9, 12911.4, 10504.2, 10170.3], 'Recovered': [159422.7, 156089.5, 94229.2, 79557.7, 77033.6], 'Quarantined': [0.0, 20309.8, 89035.7, 115795.6, 113558.3]}
 
 costs=[(1,1,1),(1,2,3),(1,2,5),(1,1,5),(1,2,10)]
 
@@ -63,14 +63,12 @@ plt.bar(br3, cost_list[2], color ='b', width = barWidth,edgecolor ='grey', label
 plt.bar(br4, cost_list[3], color ='c', width = barWidth,edgecolor ='grey', label =costs[3])
 plt.bar(br5, cost_list[4], color ='m', width = barWidth,edgecolor ='grey', label =costs[4])
 # Adding Xticks
-plt.xlabel('Degree of trace and quarantine', fontweight ='bold', fontsize = 15)
-plt.ylabel('Cumulative cost', fontweight ='bold', fontsize = 15)
+plt.xlabel('Degree of trace and quarantine')
+plt.ylabel('Cumulative cost')
 plt.xticks([r for r in range(5)])
-
+plt.title(title)
 plt.legend()
 plt.show()
 
 if pgf:
-    #st.pyplot(fig2)
-    if name2!=None:
-        plt.savefig(name+'.pgf')
+    plt.savefig(name+'.pgf')

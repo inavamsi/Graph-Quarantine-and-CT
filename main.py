@@ -205,4 +205,87 @@ def histogram():
     print("Cost per unit time of Quarantine: "+str(c))
 
 #Histogram of cumulative hours(yaxis) vs qdegree(x axis)
-histogram()
+def opt_qdegree(error_CT,trace_delay, quarantine_time):
+    seed=42
+    random.seed(seed)
+    graph_choice='G(n,p) Random graph'
+    #['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland']
+
+    n=2000
+    p=0.01
+    days=100
+    num_worlds=3
+    num_exp=0.01
+
+    a=3
+    b=2
+    c=1
+    name1='multibar_4'
+    name2=None
+
+    qdegree_list=[]
+    for i in range(4):
+        qdegree_list.append(i)
+
+    individual_types=['Susceptible','Exposed','Asymptomatic','Symptomatic','Recovered']
+    hdict={}
+    for s in individual_types:
+    	hdict[s]=[0]*len(qdegree_list)
+    hdict['Quarantined']=[0]*len(qdegree_list)
+    for qdegree in qdegree_list:
+        print("Running degree.. "+str(qdegree))
+        for i in range(num_worlds):
+        	if graph_choice=='Grid':
+        		graph_obj=Graph.Grid(n)
+        	elif graph_choice=='Country:Afghanistan':
+        		graph_obj=Graph.FamilyGraph(n,p,[0,0.03,0.06,0.14,0.23,0.6,1],True)
+        	elif graph_choice=='Country:Netherland':
+        		graph_obj=Graph.FamilyGraph(n,p,[0.35,0.58,0.81,0.9,0.99,1],True)
+        	elif graph_choice=='G(n,p) Random graph':
+        		graph_obj = Graph.RandomGraph(n,p,True)
+        	sdict,qlist = main(num_exp,days,qdegree,graph_obj,error_CT,trace_delay,quarantine_time)
+        	for state in sdict.keys():
+        		for j in range(len(sdict[state])):
+        			hdict[state][qdegree]+=sdict[state][j]
+        	for k in range(len(qlist)):
+        		hdict['Quarantined'][qdegree]+=qlist[k]
+
+    for qdegree in qdegree_list:
+    	for key in hdict.keys():
+    		hdict[key][qdegree]/=num_worlds
+
+    labels=qdegree_list
+    x = np.arange(len(labels))  # the label locations
+    width = 0.2  # the width of the bars
+
+
+    min_cost=9999999
+    min_qdegree=None
+    for i in range(len(hdict['Symptomatic'])):
+        cost=a*hdict['Symptomatic'][i]+b*hdict['Asymptomatic'][i]+c*hdict['Quarantined'][i]
+        #print(cost)
+        if cost<min_cost:
+            min_cost=cost
+            min_qdegree=i
+
+    return min_qdegree
+
+
+error_list=[0,0.1,0.2]
+delay_list=[0,1,2]
+qtime_list=[12,14,16]
+dict_3d={}
+for error in error_list:
+    dict_3d[error]={}
+    for delay in delay_list:
+        dict_3d[error][delay]={}
+        for qtime in qtime_list:
+            dict_3d[error][delay][qtime]=None
+
+for index,error in enumerate(error_list):
+    print(index)
+    for delay in delay_list:
+        for qtime in qtime_list:
+            dict_3d[error][delay][qtime]=opt_qdegree(error, delay, qtime)
+
+print(dict_3d)
