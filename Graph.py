@@ -22,7 +22,7 @@ class RandomGraph():
 					self.adj_list[i].append(j)
 					self.adj_list[j].append(i)
 
-		if self.connected:
+		if self.connected and n>1:
 			for i in range(n):
 				if self.adj_list[i]==[]:
 					allowed_values = list(range(0, n))
@@ -38,7 +38,7 @@ class RandomGraph():
 
 class FamilyGraph():
 	def __init__(self,n,p,family_sizes,connected=True):
-		#family_sizes is cumulative percentage 
+		#family_sizes is cumulative percentage
 		#30% size 1 families and 70% size 4 => [0.3,0.3,0.3,1]
 		self.n=n
 		self.p=p
