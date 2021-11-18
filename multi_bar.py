@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 pgf=False
+name='multibar_1b'
 
 if pgf:
     matplotlib.use("pgf")
@@ -12,7 +13,7 @@ if pgf:
         'pgf.rcfonts': False,
     })
 
-hdict={'Susceptible': [12649.0, 15990.2, 96541.2, 146880.1, 145588.4], 'Exposed': [7466.9, 7525.1, 5404.3, 2632.5, 2769.7], 'Asymptomatic': [4780.7, 4762.6, 3474.1, 1732.6, 1744.6], 'Symptomatic': [17674.8, 17598.5, 12456.0, 6090.5, 6562.7], 'Recovered': [159428.6, 156123.6, 84124.4, 44664.3, 45334.6], 'Quarantined': [0.0, 20419.1, 97004.4, 114517.1, 132041.9]}
+hdict={'Susceptible': [17866.5, 30038.1, 127996.4, 186337.8, 187992.0], 'Exposed': [7476.8, 7239.8, 4103.9, 612.6, 536.5], 'Asymptomatic': [4764.4, 4719.0, 2549.5, 444.6, 363.8], 'Symptomatic': [17724.3, 17100.9, 9517.6, 1528.2, 1332.6], 'Recovered': [154168.0, 142902.2, 57832.6, 13076.8, 11775.1], 'Quarantined': [0.0, 19825.2, 70386.3, 49247.1, 57212.6]}
 print(hdict)
 
 costs=[(1,1,1),(1,2,3),(1,2,5),(1,1,5),(1,2,10)]
@@ -72,4 +73,4 @@ plt.show()
 if pgf:
     #st.pyplot(fig2)
     if name2!=None:
-        plt.savefig(name2+'.pgf')
+        plt.savefig(name+'.pgf')
