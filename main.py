@@ -69,27 +69,27 @@ def average(tdict,number):
 
     return tdict
 
-def histogram():
+def histogram(error_CT,name2):
     seed=42
     random.seed(seed)
     graph_choice='G(n,p) Random graph'
     #['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland']
 
     n=2000
-    p=0.02
+    p=0.008
     days=100
     num_worlds=10
-    error_CT=0
+    #error_CT=0
     max_degree=4
     num_exp=0.01
-    trace_delay=2
+    trace_delay=1
     quarantine_time=14
 
-    a=1
+    a=3
     b=2
-    c=3
+    c=1
     name1='multibar_4'
-    name2=None
+    #name2=None
 
     qdegree_list=[]
     for i in range(max_degree+1):
@@ -171,7 +171,7 @@ def histogram():
     if graph_choice=='Grid':
     	ax.set_title('Cost of different degrees of quarantine on '+str(n)+'x'+str(n)+' grid')
     elif graph_choice=='G(n,p) Random graph':
-    	ax.set_title('Cost of different degrees of quarantine on G('+str(n)+','+str(p)+')')
+    	ax.set_title('Cost of different degrees of quarantine on G('+str(n)+','+str(p)+') \n with ' +str(error_CT)+'% error in tracing')
     elif graph_choice=='Country:Afghanistan':
     	ax.set_title('Cost of different degrees of quarantine on \n Afghanistan with underlying G('+str(n)+','+str(p)+')')
     elif graph_choice=='Country:Netherland':
@@ -204,22 +204,23 @@ def histogram():
     print("Cost per unit time of Asymptomatic infection: "+str(b))
     print("Cost per unit time of Quarantine: "+str(c))
 
+histogram(0,'error_0')
+histogram(0.2,'error_20')
+histogram(0.4,'error_40')
+
 #Histogram of cumulative hours(yaxis) vs qdegree(x axis)
-def opt_qdegree(error_CT,trace_delay, quarantine_time):
+def hdict_qdegree(error_CT,trace_delay, quarantine_time):
     seed=42
     random.seed(seed)
     graph_choice='G(n,p) Random graph'
     #['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland']
 
     n=2000
-    p=0.01
+    p=0.006
     days=100
-    num_worlds=3
+    num_worlds=10
     num_exp=0.01
 
-    a=3
-    b=2
-    c=1
     name1='multibar_4'
     name2=None
 
@@ -258,34 +259,25 @@ def opt_qdegree(error_CT,trace_delay, quarantine_time):
     x = np.arange(len(labels))  # the label locations
     width = 0.2  # the width of the bars
 
-
-    min_cost=9999999
-    min_qdegree=None
-    for i in range(len(hdict['Symptomatic'])):
-        cost=a*hdict['Symptomatic'][i]+b*hdict['Asymptomatic'][i]+c*hdict['Quarantined'][i]
-        #print(cost)
-        if cost<min_cost:
-            min_cost=cost
-            min_qdegree=i
-
-    return min_qdegree
+    return hdict
 
 
-error_list=[0,0.1,0.2]
-delay_list=[0,1,2]
-qtime_list=[12,14,16]
-dict_3d={}
-for error in error_list:
-    dict_3d[error]={}
-    for delay in delay_list:
-        dict_3d[error][delay]={}
-        for qtime in qtime_list:
-            dict_3d[error][delay][qtime]=None
+def plot_3d():
+    error_list=[0,0.1,0.2,0.3,0.4,0.5]
+    delay_list=[0,1,2,3]
+    qtime_list=[12,14,16,18]
+    dict_3d={}
+    for error in error_list:
+        dict_3d[error]={}
+        for delay in delay_list:
+            dict_3d[error][delay]={}
+            for qtime in qtime_list:
+                dict_3d[error][delay][qtime]=None
 
-for index,error in enumerate(error_list):
-    print(index)
-    for delay in delay_list:
-        for qtime in qtime_list:
-            dict_3d[error][delay][qtime]=opt_qdegree(error, delay, qtime)
+    for index,error in enumerate(error_list):
+        print(index)
+        for delay in delay_list:
+            for qtime in qtime_list:
+                dict_3d[error][delay][qtime]=hdict_qdegree(error, delay, qtime)
 
-print(dict_3d)
+    print(dict_3d)
