@@ -7,8 +7,9 @@ import numpy as np
 import Agent
 import Graph
 import Simulate
+import streamlit as st
 
-pgf=True
+pgf=False
 if pgf:
     matplotlib.use("pgf")
     matplotlib.rcParams.update({
@@ -69,27 +70,52 @@ def average(tdict,number):
 
     return tdict
 
-def histogram(error_CT,name2):
-    seed=42
+def streamlit_ui():
+    st.write("""
+    # Efficacy of Contact Tracing for Covid-19
+    Finding the optimal sweet spot for contact tracing in a region.
+    """)
+    st.write("For any queries please email ibe214@nyu.edu")
+    st.write("------------------------------------------------------------------------------------")
+
+    st.sidebar.write("World parameters")
+    seed=int(st.sidebar.text_input("Enter random seed value", value='42'))
     random.seed(seed)
-    graph_choice='G(n,p) Random graph'
-    #['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland']
+    graph_choice=st.sidebar.selectbox('Select Graph type', ['G(n,p) Random graph', 'Grid','Country:Afghanistan','Country:Netherland'])
 
-    n=2000
-    p=0.008
-    days=100
-    num_worlds=10
-    #error_CT=0
-    max_degree=4
-    num_exp=0.01
-    trace_delay=1
-    quarantine_time=14
+    if graph_choice=='Grid':
+    	n=st.sidebar.slider("Value of 'n' for nxn grid", min_value=5 , max_value=50 , value=30 , step=5)
+    	p=None
+    	days=st.sidebar.slider("Number of days in simulation", min_value=10 , max_value=300 , value=100 , step=10 , format=None , key=None )
+    	num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=50 , step=1 , format=None , key=None )
 
-    a=3
-    b=2
-    c=1
-    name1='multibar_4'
-    #name2=None
+    else:
+    	n=st.sidebar.slider("Number of agents", min_value=250 , max_value=10000 , value=500 , step=250)
+    	p=st.sidebar.slider("Probability(p) of an edge in G(n,p) random graph", min_value=0.0 , max_value=1.0 , value=0.26 , step=0.01 , format=None , key=None )
+    	p_range=st.sidebar.checkbox("Divide p by 10",value=True)
+    	if p_range:
+    		p/=10
+    	p = float(int(p*1000))/1000
+    	days=st.sidebar.slider("Number of days in simulation", min_value=10 , max_value=300 , value=100 , step=10 , format=None , key=None )
+    	num_worlds=st.sidebar.slider("Number of times to average simulations over", min_value=1 , max_value=100 , value=1 , step=1 , format=None , key=None )
+
+
+    st.sidebar.write("Averaging simulation "+str(num_worlds)+" times over graph G("+str(n)+","+str(p)+") for "+str(days)+" days.")
+
+    st.sidebar.write("--------------")
+    st.sidebar.write("Contact Tracing parameters")
+    error_CT=st.sidebar.slider("Error proportion in identifying contacts", min_value=0.0 , max_value=1.0 , value=0.0 , step=0.01 , format=None , key=None )
+    max_degree=st.sidebar.slider("Degree range", min_value=0 , max_value=10 , value=3 , step=1 , format=None , key=None )
+    qdegree_list=[]
+    for i in range(max_degree+1):
+    	qdegree_list.append(i)
+
+    st.sidebar.write("--------------")
+
+    st.sidebar.write("Policy parameters")
+    num_exp=st.sidebar.slider("Starting exposed proportion", min_value=0.0 , max_value=1.0 , value=0.01 , step=0.01 , format=None , key=None )
+    trace_delay=st.sidebar.slider("Delay in subsequent tracing", min_value=0 , max_value=5 , value=1 , step=1 , format=None , key=None )
+    quarantine_time=st.sidebar.slider("Duration of Quarantine", min_value=0 , max_value=20 , value=14 , step=1 , format=None , key=None )
 
     qdegree_list=[]
     for i in range(max_degree+1):
@@ -149,13 +175,22 @@ def histogram(error_CT,name2):
 
     fig.tight_layout()
 
-    plt.show()
-    print(hdict)
+    st.pyplot(fig)
+
+    st.write("------------------------------------------------------------------------------------")
 
     if pgf:
         #st.pyplot(fig2)
         if name1!=None:
             plt.savefig(name1+'.pgf')
+
+    st.header("Cost function")
+    st.write("Goal is to minimise Cost function where each of the following attributes contribute respective cost.")
+    st.write("Cost function = a(Cumulative Symptomatic) + b(Cumulative Asymptomatic) + c(Cumulative Quarantine)")
+
+    a=st.slider("Cost per unit time of Symptomatic infection",value=13)
+    b=st.slider("Cost per unit time of Asymptomatic infection",value=5)
+    c=st.slider("Cost per unit time of Quarantine",value=1)
 
     cost_list=[]
     for i in range(len(hdict['Symptomatic'])):
@@ -181,7 +216,9 @@ def histogram(error_CT,name2):
 
     fig2.tight_layout()
 
-    plt.show()
+    st.pyplot(fig2)
+
+    st.write("------------------------------------------------------------------------------------")
 
     if pgf:
         #st.pyplot(fig2)
@@ -204,9 +241,7 @@ def histogram(error_CT,name2):
     print("Cost per unit time of Asymptomatic infection: "+str(b))
     print("Cost per unit time of Quarantine: "+str(c))
 
-histogram(0,'error_0')
-histogram(0.2,'error_20')
-histogram(0.4,'error_40')
+streamlit_ui()
 
 #Histogram of cumulative hours(yaxis) vs qdegree(x axis)
 def hdict_qdegree(error_CT,trace_delay, quarantine_time):
